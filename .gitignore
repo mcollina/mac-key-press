@@ -1,0 +1,13 @@
+node_modules/
+build/
+libleveldb.so
+libleveldb.a
+leakydb
+bench/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.tlog
+*.obj
+*.1sdk.pdb
+*.lastbuildstate

@@ -1,0 +1,15 @@
+{
+  "name": "mac-key-pres",
+  "version": "0.0.1",
+  "description": "Press a key on a Mac",
+  "main": "index.js",
+  "gypfile": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Matteo Collina <hello@matteocollina.com>",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "~0.8.0"
+  }
+}
