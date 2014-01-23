@@ -1,5 +1,5 @@
 {
-  "name": "mac-key-pres",
+  "name": "mac-key-press",
   "version": "0.0.1",
   "description": "Press a key on a Mac",
   "main": "index.js",
