@@ -48,11 +48,28 @@ NAN_METHOD(Move) {
   NanReturnUndefined();
 }
 
+NAN_METHOD(GetPos) {
+  NanScope();
+
+  CGEventRef event = CGEventCreate(NULL);
+  CGPoint cursor = CGEventGetLocation(event);
+  CFRelease(event);
+
+  Local<Object> pos = Object::New();
+
+  pos->Set(String::NewSymbol("x"), Number::New(cursor.x));
+  pos->Set(String::NewSymbol("y"), Number::New(cursor.y));
+
+  NanReturnValue(pos);
+}
+
 void Init(Handle<Object> exports) {
   exports->Set(String::NewSymbol("press"),
       FunctionTemplate::New(Press)->GetFunction());
   exports->Set(String::NewSymbol("move"),
       FunctionTemplate::New(Move)->GetFunction());
+  exports->Set(String::NewSymbol("getPos"),
+      FunctionTemplate::New(GetPos)->GetFunction());
 }
 
 NODE_MODULE(addon, Init)
