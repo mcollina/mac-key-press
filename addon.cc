@@ -28,9 +28,31 @@ NAN_METHOD(Press) {
   NanReturnUndefined();
 }
 
+NAN_METHOD(Move) {
+  NanScope();
+
+  if (args.Length() < 2) {
+    ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
+    NanReturnUndefined();
+  }
+
+  if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
+    ThrowException(Exception::TypeError(String::New("Wrong arguments")));
+    NanReturnUndefined();
+  }
+
+  CGEventRef move = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CGPointMake(args[0]->NumberValue(), args[1]->NumberValue()), kCGMouseButtonLeft);
+  CGEventPost(kCGHIDEventTap, move);
+  CFRelease(move);
+
+  NanReturnUndefined();
+}
+
 void Init(Handle<Object> exports) {
   exports->Set(String::NewSymbol("press"),
       FunctionTemplate::New(Press)->GetFunction());
+  exports->Set(String::NewSymbol("move"),
+      FunctionTemplate::New(Move)->GetFunction());
 }
 
 NODE_MODULE(addon, Init)
