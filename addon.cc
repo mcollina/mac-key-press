@@ -45,6 +45,11 @@ NAN_METHOD(Move) {
   CGEventPost(kCGHIDEventTap, move);
   CFRelease(move);
 
+  if(move == NULL) {
+    ThrowException(Exception::TypeError(String::New("Error creating the event")));
+    NanReturnUndefined();
+  }
+
   NanReturnUndefined();
 }
 
