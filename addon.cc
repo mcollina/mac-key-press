@@ -28,9 +28,62 @@ NAN_METHOD(Press) {
   NanReturnUndefined();
 }
 
+NAN_METHOD(Move) {
+  NanScope();
+
+  if (args.Length() < 2) {
+    ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
+    NanReturnUndefined();
+  }
+
+  if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
+    ThrowException(Exception::TypeError(String::New("Wrong arguments")));
+    NanReturnUndefined();
+  }
+
+
+  size_t xMax = CGDisplayPixelsWide(kCGDirectMainDisplay);
+  size_t yMax = CGDisplayPixelsHigh(kCGDirectMainDisplay);
+
+  if (args[0]->NumberValue() > xMax || args[0]->NumberValue() < 0 || args[1]->NumberValue() > yMax || args[1]->NumberValue() < 0){
+    ThrowException(Exception::TypeError(String::New("Invalid cursor position")));
+    NanReturnUndefined();
+  }
+
+  CGEventRef move = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CGPointMake(args[0]->NumberValue(), args[1]->NumberValue()), kCGMouseButtonLeft);
+  CGEventPost(kCGHIDEventTap, move);
+  CFRelease(move);
+
+  if(move == NULL) {
+    ThrowException(Exception::TypeError(String::New("Error creating the event")));
+    NanReturnUndefined();
+  }
+
+  NanReturnUndefined();
+}
+
+NAN_METHOD(GetPos) {
+  NanScope();
+
+  CGEventRef event = CGEventCreate(NULL);
+  CGPoint cursor = CGEventGetLocation(event);
+  CFRelease(event);
+
+  Local<Object> pos = Object::New();
+
+  pos->Set(String::NewSymbol("x"), Number::New(cursor.x));
+  pos->Set(String::NewSymbol("y"), Number::New(cursor.y));
+
+  NanReturnValue(pos);
+}
+
 void Init(Handle<Object> exports) {
   exports->Set(String::NewSymbol("press"),
       FunctionTemplate::New(Press)->GetFunction());
+  exports->Set(String::NewSymbol("move"),
+      FunctionTemplate::New(Move)->GetFunction());
+  exports->Set(String::NewSymbol("getPos"),
+      FunctionTemplate::New(GetPos)->GetFunction());
 }
 
 NODE_MODULE(addon, Init)

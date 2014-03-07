@@ -1,2 +1,4 @@
 var addon = require('./build/Release/addon');
-module.exports = addon.press;
+module.exports.press = addon.press;
+module.exports.move = addon.move;
+module.exports.getPos = addon.getPos
