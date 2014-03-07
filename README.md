@@ -1,12 +1,19 @@
 Mac-Key-Press
 =============
 
-Press a key on a Mac.
+Press a key or move the mouse on a Mac.
 
 ```javascript
-var press = require('mac-key-press')
+var press = require('mac-key-press').press;
+var move = require('mac-key-press').move;
+var getPos = require('mac-key-press').getPos;
 
-press(12) // emulates a press of 'a'
+press(12);
+
+setInterval(function() {
+  move(Math.floor((Math.random()*1000)), Math.floor((Math.random()*1000)))
+  console.log(getPos());
+}, 500);
 ```
 
 Keyboard
