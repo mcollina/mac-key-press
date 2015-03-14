@@ -34,7 +34,7 @@ $ npm install mac-press-key
 License
 -------
 
-Copyright (c) 2014 Matteo Collina (http://matteocollina.com)
+Copyright (c) 2014-2015 Matteo Collina (http://matteocollina.com)
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
