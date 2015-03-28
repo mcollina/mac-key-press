@@ -1,6 +1,6 @@
 {
   "name": "mac-key-press",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Press a key or move the mouse on a Mac",
   "main": "index.js",
   "gypfile": true,
@@ -9,6 +9,7 @@
   },
   "author": "Matteo Collina <hello@matteocollina.com>",
   "license": "MIT",
+  "repository": "https://github.com/mcollina/mac-key-press",
   "dependencies": {
     "nan": "~1.7.0"
   }
