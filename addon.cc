@@ -5,85 +5,79 @@
 using namespace v8;
 
 NAN_METHOD(Press) {
-  NanScope();
 
-  if (args.Length() < 1) {
-    NanThrowTypeError("Wrong number of arguments");
-    NanReturnUndefined();
+  if (info.Length() < 1) {
+    Nan::ThrowTypeError("Wrong number of arguments");
+    return;
   }
 
-  if (!args[0]->IsNumber()) {
-    NanThrowTypeError("Wrong arguments");
-    NanReturnUndefined();
+  if (!info[0]->IsNumber()) {
+    Nan::ThrowTypeError("Wrong arguments");
+    return;
   }
 
-  CGEventRef down = CGEventCreateKeyboardEvent(NULL, (CGKeyCode) args[0]->NumberValue(), true);
+  CGEventRef down = CGEventCreateKeyboardEvent(NULL, (CGKeyCode) info[0]->NumberValue(), true);
   CGEventPost(kCGHIDEventTap, down);
   CFRelease(down);
 
-  CGEventRef up = CGEventCreateKeyboardEvent(NULL, (CGKeyCode) args[0]->NumberValue(), false);
+  CGEventRef up = CGEventCreateKeyboardEvent(NULL, (CGKeyCode) info[0]->NumberValue(), false);
   CGEventPost(kCGHIDEventTap, up);
   CFRelease(up);
 
-  NanReturnUndefined();
+  return;
 }
 
 NAN_METHOD(Move) {
-  NanScope();
 
-  if (args.Length() < 2) {
-    NanThrowTypeError("Wrong number of arguments");
-    NanReturnUndefined();
+  if (info.Length() < 2) {
+    Nan::ThrowTypeError("Wrong number of arguments");
+    return;
   }
 
-  if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
-    NanThrowTypeError("Wrong arguments");
-    NanReturnUndefined();
+  if (!info[0]->IsNumber() || !info[1]->IsNumber()) {
+    Nan::ThrowTypeError("Wrong arguments");
+    return;
   }
 
 
   size_t xMax = CGDisplayPixelsWide(kCGDirectMainDisplay);
   size_t yMax = CGDisplayPixelsHigh(kCGDirectMainDisplay);
 
-  if (args[0]->NumberValue() > xMax || args[0]->NumberValue() < 0 || args[1]->NumberValue() > yMax || args[1]->NumberValue() < 0){
-    NanThrowTypeError("Invalid cursor position");
-    NanReturnUndefined();
+  if (info[0]->NumberValue() > xMax || info[0]->NumberValue() < 0 || info[1]->NumberValue() > yMax || info[1]->NumberValue() < 0){
+    Nan::ThrowTypeError("Invalid cursor position");
+    return;
   }
 
-  CGEventRef move = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CGPointMake(args[0]->NumberValue(), args[1]->NumberValue()), kCGMouseButtonLeft);
+  CGEventRef move = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CGPointMake(info[0]->NumberValue(), info[1]->NumberValue()), kCGMouseButtonLeft);
   CGEventPost(kCGHIDEventTap, move);
   CFRelease(move);
 
   if(move == NULL) {
-    NanThrowTypeError("Error creating the event");
-    NanReturnUndefined();
+    Nan::ThrowTypeError("Error creating the event");
+    return;
   }
 
-  NanReturnUndefined();
+  return;
 }
 
 NAN_METHOD(GetPos) {
-  NanScope();
 
   CGEventRef event = CGEventCreate(NULL);
   CGPoint cursor = CGEventGetLocation(event);
   CFRelease(event);
 
-  Local<Object> pos = NanNew<Object>();
+  Local<Object> pos = Nan::New<Object>();
 
-  pos->Set(NanNew<String>("x"), NanNew<Number>(cursor.x));
-  pos->Set(NanNew<String>("y"), NanNew<Number>(cursor.y));
+  Nan::Set(pos, Nan::New<String>("x").ToLocalChecked(), Nan::New<Number>(cursor.x));
+  Nan::Set(pos, Nan::New<String>("y").ToLocalChecked(), Nan::New<Number>(cursor.y));
 
-  NanReturnValue(pos);
+  info.GetReturnValue().Set(pos);
 }
 
-void Init(Handle<Object> exports) {
-  exports->Set(NanNew<String>("press"),
-      NanNew<FunctionTemplate>(Press)->GetFunction());
-  exports->Set(NanNew<String>("move"),
-      NanNew<FunctionTemplate>(Move)->GetFunction());
-  exports->Set(NanNew<String>("getPos"),
-     NanNew<FunctionTemplate>(GetPos)->GetFunction());
+NAN_MODULE_INIT(Init) {
+  Nan::Set(target, Nan::New<String>("press").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(Press)).ToLocalChecked());
+  Nan::Set(target, Nan::New<String>("move").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(Move)).ToLocalChecked());
+  Nan::Set(target, Nan::New<String>("getPos").ToLocalChecked(),Nan::GetFunction(Nan::New<FunctionTemplate>(GetPos)).ToLocalChecked());
 }
 
 NODE_MODULE(addon, Init)
