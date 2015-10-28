@@ -1,6 +1,6 @@
 {
   "name": "mac-key-press",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Press a key or move the mouse on a Mac",
   "main": "index.js",
   "gypfile": true,
