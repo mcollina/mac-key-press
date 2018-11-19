@@ -6,7 +6,7 @@ var getPos = require('./').getPos;
 press(12);
 
 setInterval(function() {
-  move(Math.floor((Math.random()*1000)), Math.floor((Math.random()*1000)))
+  move(Math.floor((Math.random()*100 + 1)), Math.floor((Math.random()*100 + 1)))
   console.log(getPos());
 }, 500);
 
