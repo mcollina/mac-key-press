@@ -1,83 +1,87 @@
 #include <ApplicationServices/ApplicationServices.h>
-#include <node.h>
-#include "nan.h"
+#include <napi.h>
+#include "napi.h"
 
-using namespace v8;
+using namespace Napi;
 
-NAN_METHOD(Press) {
+Napi::Value Press(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
 
   if (info.Length() < 1) {
-    Nan::ThrowTypeError("Wrong number of arguments");
-    return;
+    Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+    return env.Null();
   }
 
-  if (!info[0]->IsNumber()) {
-    Nan::ThrowTypeError("Wrong arguments");
-    return;
+  if (!info[0].IsNumber()) {
+    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+    return env.Null();
   }
 
-  CGEventRef down = CGEventCreateKeyboardEvent(NULL, (CGKeyCode) info[0]->NumberValue(), true);
+  CGEventRef down = CGEventCreateKeyboardEvent(NULL, (CGKeyCode) info[0].As<Napi::Number>().DoubleValue(), true);
   CGEventPost(kCGHIDEventTap, down);
   CFRelease(down);
 
-  CGEventRef up = CGEventCreateKeyboardEvent(NULL, (CGKeyCode) info[0]->NumberValue(), false);
+  CGEventRef up = CGEventCreateKeyboardEvent(NULL, (CGKeyCode) info[0].As<Napi::Number>().DoubleValue(), false);
   CGEventPost(kCGHIDEventTap, up);
   CFRelease(up);
 
-  return;
+  return env.Null();
 }
 
-NAN_METHOD(Move) {
+Napi::Value Move(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
 
   if (info.Length() < 2) {
-    Nan::ThrowTypeError("Wrong number of arguments");
-    return;
+    Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+    return env.Null();
   }
 
-  if (!info[0]->IsNumber() || !info[1]->IsNumber()) {
-    Nan::ThrowTypeError("Wrong arguments");
-    return;
+  if (!info[0].IsNumber() || !info[1].IsNumber()) {
+    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+    return env.Null();
   }
-
 
   size_t xMax = CGDisplayPixelsWide(kCGDirectMainDisplay);
   size_t yMax = CGDisplayPixelsHigh(kCGDirectMainDisplay);
 
-  if (info[0]->NumberValue() > xMax || info[0]->NumberValue() < 0 || info[1]->NumberValue() > yMax || info[1]->NumberValue() < 0){
-    Nan::ThrowTypeError("Invalid cursor position");
-    return;
+  if (info[0].As<Napi::Number>().DoubleValue() > xMax || info[0].As<Napi::Number>().DoubleValue() < 0 || info[1].As<Napi::Number>().DoubleValue() > yMax || info[1].As<Napi::Number>().DoubleValue() < 0){
+    Napi::TypeError::New(env, "Invalid cursor position").ThrowAsJavaScriptException();
+    return env.Null();
   }
 
-  CGEventRef move = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CGPointMake(info[0]->NumberValue(), info[1]->NumberValue()), kCGMouseButtonLeft);
+  CGEventRef move = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, CGPointMake(info[0].As<Napi::Number>().DoubleValue(), info[1].As<Napi::Number>().DoubleValue()), kCGMouseButtonLeft);
   CGEventPost(kCGHIDEventTap, move);
   CFRelease(move);
 
   if(move == NULL) {
-    Nan::ThrowTypeError("Error creating the event");
-    return;
+    Napi::TypeError::New(env, "Error creating the event").ThrowAsJavaScriptException();
+    return env.Null();
   }
 
-  return;
+  return env.Null();
 }
 
-NAN_METHOD(GetPos) {
+Napi::Value GetPos(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
 
   CGEventRef event = CGEventCreate(NULL);
   CGPoint cursor = CGEventGetLocation(event);
   CFRelease(event);
 
-  Local<Object> pos = Nan::New<Object>();
+  Napi::Object pos = Napi::Object::New(env);
 
-  Nan::Set(pos, Nan::New<String>("x").ToLocalChecked(), Nan::New<Number>(cursor.x));
-  Nan::Set(pos, Nan::New<String>("y").ToLocalChecked(), Nan::New<Number>(cursor.y));
+  (pos).Set(Napi::String::New(env, "x"), Napi::Number::New(env, cursor.x));
+  (pos).Set(Napi::String::New(env, "y"), Napi::Number::New(env, cursor.y));
 
-  info.GetReturnValue().Set(pos);
+  return pos;
 }
 
-NAN_MODULE_INIT(Init) {
-  Nan::Set(target, Nan::New<String>("press").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(Press)).ToLocalChecked());
-  Nan::Set(target, Nan::New<String>("move").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(Move)).ToLocalChecked());
-  Nan::Set(target, Nan::New<String>("getPos").ToLocalChecked(),Nan::GetFunction(Nan::New<FunctionTemplate>(GetPos)).ToLocalChecked());
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+  exports.Set(Napi::String::New(env, "press"), Napi::Function::New(env, Press));
+  exports.Set(Napi::String::New(env, "move"), Napi::Function::New(env, Move));
+  exports.Set(Napi::String::New(env, "getPos"), Napi::Function::New(env, GetPos));
+
+  return exports;
 }
 
-NODE_MODULE(addon, Init)
+NODE_API_MODULE(addon, Init)

@@ -11,6 +11,6 @@
   "license": "MIT",
   "repository": "https://github.com/mcollina/mac-key-press",
   "dependencies": {
-    "nan": "^2.1.0"
+    "node-addon-api": "^1.6.0"
   }
 }
